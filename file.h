@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <fcntl.h>
 #include <unistd.h>
 #include <string>
+#include <memory>
 
 namespace ricanontherun {
 
@@ -94,7 +95,7 @@ public:
    * @param bytes
    * @return
    */
-  READ_STATUS Read(ssize_t bytes = BUFSIZ);
+  READ_STATUS Read(ssize_t bytes = 0);
 
   /**
    * Return the bytes that were read in the previous Read() operation.
@@ -104,8 +105,12 @@ public:
 
 private:
   int __fd;
+  FILE_STATUS __fstatus;
   std::string __buf;
   READ_STATUS __last_read_status;
+  struct stat __fs;
+
+  void init();
 
   ssize_t ReadIntoBuffer(char *buf, ssize_t bytes);
   bool ReadFailed() const;
