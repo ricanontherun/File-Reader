@@ -12,8 +12,11 @@ File f(path);
 File f(path, O_RDONLY, File::ACCESS_ADVICE::SEQUENTIAL);
 
 if ( f.Ok() ) {
-    File::READ_STATUS status = f.Read(); // Read BUFSIZ bytes into f's internal buffer.
-    File::READ_STATUS status = f.Read(1000) // Read 1000 bytes into f's internal buffer.
+    // Read bytes according to the file's optimal block size.
+    File::READ_STATUS status = f.Read();
+    
+     // Read 1000 bytes into f's internal buffer.
+    File::READ_STATUS status = f.Read(1000);
     
     std:string data = f.Get(); // Get the current contents of f's internal buffer.
 }
