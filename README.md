@@ -1,6 +1,6 @@
 # File Abstraction
 
-An file input stream interface with fast reads in mind.
+A file input stream interface with fast reads in mind.
 
 ```cpp
 using File = ricanontherun::File;
