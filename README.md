@@ -38,7 +38,7 @@ if ( !f.Ok() ) {
     
     if ( status == File::READ_STATUS::EXHAUSTED ) {
         // End of file
-    } else { File::READ_STATUS::ERROR
+    } else if ( status == File::READ_STATUS::ERROR ) {
         // An error occured
     }
 }
