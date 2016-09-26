@@ -31,7 +31,7 @@ namespace ricanontherun {
  * @return
  */
 File::File(const char *path) : __fd(open(path, O_RDONLY)) {
-    this->init();
+  this->init();
 }
 
 /**
@@ -42,7 +42,7 @@ File::File(const char *path) : __fd(open(path, O_RDONLY)) {
  * @return
  */
 File::File(const char *path, int flags) : __fd(open(path, flags)) {
-    this->init();
+  this->init();
 }
 
 /**
@@ -71,7 +71,7 @@ File::~File() {
  * Was the file opened without error?
  * @return
  */
-bool File::Ok() {
+bool File::Ok() const {
   return this->__fd != static_cast<int>(FILE_STATUS::ERROR);
 }
 
@@ -82,7 +82,7 @@ bool File::Ok() {
  * @return
  */
 File::READ_STATUS File::Read(ssize_t bytes) {
-  bytes = bytes != 0 ? bytes : this->__fs.st_blksize;
+  bytes = bytes != 0 ? bytes : this->BlockSize();
 
   char buf[bytes + 1];
 
@@ -107,16 +107,19 @@ const std::string &File::Get() const {
   return this->__buf;
 }
 
-void File::init()
-{
-    if ( !this->Ok() ) {
-        return;
-    }
+off_t File::BlockSize() const {
+  return this->Ok() ? this->__fs.st_blksize : 0;
+}
 
-    if (  fstat(this->__fd, &(this->__fs)) == -1 ) {
-        this->__fstatus = FILE_STATUS::ERROR;
-        std::cerr << "fstat: " << strerror(errno) << "\n";
-    }
+void File::init() {
+  if (!this->Ok()) {
+    return;
+  }
+
+  if (fstat(this->__fd, &(this->__fs)) == -1) {
+    this->__fstatus = FILE_STATUS::ERROR;
+    std::cerr << "fstat: " << strerror(errno) << "\n";
+  }
 }
 
 ssize_t File::ReadIntoBuffer(char *buf, ssize_t bytes) {

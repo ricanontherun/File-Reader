@@ -87,7 +87,7 @@ public:
    * Was the file opened without error?
    * @return
    */
-  bool Ok();
+  bool Ok() const;
 
   /**
    * Read bytes from the file. When the bytes argument is omitted, the 'optimal'
@@ -103,6 +103,13 @@ public:
    * @return
    */
   const std::string & Get() const;
+
+  /**
+   * Get the I/O blocksize.
+   *
+   * @return
+   */
+  blksize_t BlockSize() const;
 
 private:
   int __fd;
