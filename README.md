@@ -35,6 +35,12 @@ if ( !f.Ok() ) {
         
         // Do something with data
     }
+    
+    if ( status == File::READ_STATUS::EXHAUSTED ) {
+        // End of file
+    } else { File::READ_STATUS::ERROR
+        // An error occured
+    }
 }
 ```
 Das it mayne.
