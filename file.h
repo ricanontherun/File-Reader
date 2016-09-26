@@ -41,10 +41,10 @@ public:
   };
 
   enum class FILE_STATUS {
-    ERROR = -1,
-    OK = 0
+    ERROR = -1
   };
 
+  // http://man7.org/linux/man-pages/man2/posix_fadvise.2.html
   enum class ACCESS_ADVICE {
     SEQUENTIAL = POSIX_FADV_SEQUENTIAL,
     RANDOM = POSIX_FADV_RANDOM,
@@ -53,15 +53,53 @@ public:
     DONTNEED = POSIX_FADV_DONTNEED
   };
 
-  File();
+  /**
+   * Default Construct
+   *
+   * @param path
+   * @return
+   */
   File(const char *path);
+
+  /**
+   * Construct with flags.
+   *
+   * @param path
+   * @param flags
+   * @return
+   */
   File(const char *path, int flags);
+
+  /**
+   * Construct with flags and advice.
+   *
+   * @param path
+   * @param flags
+   * @param advice
+   * @return
+   */
   File(const char *path, int flags, ACCESS_ADVICE advice);
 
   ~File();
 
+  /**
+   * Was the file opened without error?
+   * @return
+   */
   bool Ok();
+
+  /**
+   * Read bytes from the file.
+   *
+   * @param bytes
+   * @return
+   */
   READ_STATUS Read(ssize_t bytes = BUFSIZ);
+
+  /**
+   * Return the bytes that were read in the previous Read() operation.
+   * @return
+   */
   const std::string & Get() const;
 
 private:

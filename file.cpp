@@ -2,15 +2,31 @@
 
 namespace ricanontherun {
 
-File::File() {}
+/**
+ * Default Construct
+ *
+ * @param path
+ * @return
+ */
+File::File(const char *path) : __fd(open(path, O_RDONLY)) {}
 
-File::File(const char *path) {
-  this->__fd = open(path, O_RDONLY);
-}
+/**
+ * Construct with flags.
+ *
+ * @param path
+ * @param flags
+ * @return
+ */
+File::File(const char *path, int flags) : __fd(open(path, flags)) {}
 
-File::File(const char *path, int flags) : __fd(open(path, flags)) {
-}
-
+/**
+ * Construct with flags and advice.
+ *
+ * @param path
+ * @param flags
+ * @param advice
+ * @return
+ */
 File::File(const char *path, int flags, ACCESS_ADVICE advice) : __fd(open(path, flags)) {
   if (IS_READ(flags)) {
     posix_fadvise(this->__fd, 0, 0, static_cast<int>(advice));
@@ -23,16 +39,26 @@ File::~File() {
   }
 }
 
+/**
+ * Was the file opened without error?
+ * @return
+ */
 bool File::Ok() {
   return this->__fd != static_cast<int>(FILE_STATUS::ERROR);
 }
 
+/**
+ * Read bytes from the file.
+ *
+ * @param bytes
+ * @return
+ */
 File::READ_STATUS File::Read(ssize_t bytes) {
   char buf[bytes + 1];
 
   ssize_t bytes_read = this->ReadIntoBuffer(buf, bytes);
 
-  if ( !this->ReadFailed() ) {
+  if (!this->ReadFailed()) {
     // Top off the string at however many bytes were actually read.
     buf[bytes_read] = '\0';
 
@@ -43,8 +69,11 @@ File::READ_STATUS File::Read(ssize_t bytes) {
   return this->GetReadStatus();
 }
 
-const std::string & File::Get() const
-{
+/**
+ * Return the bytes that were read in the previous Read() operation.
+ * @return
+ */
+const std::string &File::Get() const {
   return this->__buf;
 }
 
@@ -53,22 +82,18 @@ ssize_t File::ReadIntoBuffer(char *buf, ssize_t bytes) {
 
   // Set the read status.
   switch (bytes_read) {
-  case -1:
-    this->__last_read_status = READ_STATUS::ERROR;
+  case -1:this->__last_read_status = READ_STATUS::ERROR;
     break;
-  case 0:
-    this->__last_read_status = READ_STATUS::EXHAUSTED;
+  case 0:this->__last_read_status = READ_STATUS::EXHAUSTED;
     break;
-  default:
-    this->__last_read_status = READ_STATUS::OK;
+  default:this->__last_read_status = READ_STATUS::OK;
     break;
   }
 
   return bytes_read;
 }
 
-void File::SetReadStatus(READ_STATUS status)
-{
+void File::SetReadStatus(READ_STATUS status) {
   this->__last_read_status = status;
 }
 
