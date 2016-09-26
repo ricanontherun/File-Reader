@@ -1,6 +1,6 @@
 # File Abstraction
 
-File Abstraction with fast reads in mind.
+Very simple file data stream interface for fast reading of data.
 
 ```cpp
 using File = ricanontherun::File;
@@ -19,4 +19,22 @@ if ( f.Ok() ) {
 }
 ```
 
+## A more practical usage
+```cpp
+using File = ricanontherun::File;
+
+File f("file.txt", O_RDONLY, File::ACCESS_ADVICE::SEQUENTIAL);
+
+if ( !f.Ok() ) {
+    // handle error
+} else {
+    File::READ_STATUS status;
+    
+    while ( (status = f.Read(1024)) == File::READ_STATUS::OK ) {
+        std::string data = f.Get();
+        
+        // Do something with data
+    }
+}
+```
 Das it mayne.
