@@ -90,7 +90,8 @@ public:
   bool Ok();
 
   /**
-   * Read bytes from the file.
+   * Read bytes from the file. When the bytes argument is omitted, the 'optimal'
+   * block size is used from a call to fstat.
    *
    * @param bytes
    * @return
