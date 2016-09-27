@@ -8,8 +8,8 @@ using File = ricanontherun::File;
 // Create a file object, defaults to read-only mode.
 File f(path);
 
-// Create a file object, read-only with sequential read advice
-File f(path, O_RDONLY, File::ACCESS_ADVICE::SEQUENTIAL);
+// Create a file object, with sequential read advice
+File f(path, File::ACCESS_ADVICE::SEQUENTIAL);
 
 if ( f.Ok() ) {
     // Read bytes according to the file's optimal block size.
@@ -26,7 +26,7 @@ if ( f.Ok() ) {
 ```cpp
 using File = ricanontherun::File;
 
-File f("file.txt", O_RDONLY, File::ACCESS_ADVICE::SEQUENTIAL);
+File f("file.txt", File::ACCESS_ADVICE::SEQUENTIAL);
 
 if ( !f.Ok() ) {
     // handle error

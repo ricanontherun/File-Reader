@@ -25,27 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace ricanontherun {
 
 /**
- * Default Construct
- *
- * @param path
- * @return
- */
-File::File(const char *path) : __fd(open(path, O_RDONLY)) {
-  this->init();
-}
-
-/**
- * Construct with flags.
- *
- * @param path
- * @param flags
- * @return
- */
-File::File(const char *path, int flags) : __fd(open(path, flags)) {
-  this->init();
-}
-
-/**
  * Construct with flags and advice.
  *
  * @param path
@@ -53,17 +32,20 @@ File::File(const char *path, int flags) : __fd(open(path, flags)) {
  * @param advice
  * @return
  */
-File::File(const char *path, int flags, ACCESS_ADVICE advice) : __fd(open(path, flags)) {
+File::File(const char *path, ACCESS_ADVICE advice) : __fd(open(path, O_RDONLY)) {
   this->init();
-
-  if (IS_READ(flags)) {
-    posix_fadvise(this->__fd, 0, 0, static_cast<int>(advice));
-  }
+  this->TakeAdvice(advice);
 }
 
 File::~File() {
   if (this->Ok()) {
     close(this->__fd);
+  }
+}
+
+void File::TakeAdvice(ACCESS_ADVICE advice) const {
+  if (advice != ACCESS_ADVICE::NORMAL) {
+    posix_fadvise(this->__fd, 0, 0, static_cast<int>(advice));
   }
 }
 

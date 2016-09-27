@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <fcntl.h>
 #include <unistd.h>
 #include <string>
-#include <memory>
 
 namespace ricanontherun {
 
@@ -47,6 +46,7 @@ public:
 
   // http://man7.org/linux/man-pages/man2/posix_fadvise.2.html
   enum class ACCESS_ADVICE {
+    NORMAL = POSIX_FADV_NORMAL,
     SEQUENTIAL = POSIX_FADV_SEQUENTIAL,
     RANDOM = POSIX_FADV_RANDOM,
     NOREUSE = POSIX_FADV_NOREUSE,
@@ -55,31 +55,14 @@ public:
   };
 
   /**
-   * Default Construct
-   *
-   * @param path
-   * @return
-   */
-  File(const char *path);
-
-  /**
-   * Construct with flags.
-   *
-   * @param path
-   * @param flags
-   * @return
-   */
-  File(const char *path, int flags);
-
-  /**
-   * Construct with flags and advice.
+   * Constructor
    *
    * @param path
    * @param flags
    * @param advice
    * @return
    */
-  File(const char *path, int flags, ACCESS_ADVICE advice);
+  File(const char *path, ACCESS_ADVICE advice = ACCESS_ADVICE::NORMAL);
 
   ~File();
 
@@ -102,7 +85,7 @@ public:
    * Return the bytes that were read in the previous Read() operation.
    * @return
    */
-  const std::string & Get() const;
+  const std::string &Get() const;
 
   /**
    * Get the I/O blocksize.
@@ -112,13 +95,24 @@ public:
   blksize_t BlockSize() const;
 
 private:
+  // File descriptor
   int __fd;
+
+  // Current status of file.
   FILE_STATUS __fstatus;
+
+  // Internal read buffer.
   std::string __buf;
+
+  // The status of the last Read() operation.
   READ_STATUS __last_read_status;
+
+  // File info.
   struct stat __fs;
 
   void init();
+
+  void TakeAdvice(ACCESS_ADVICE advice) const;
 
   ssize_t ReadIntoBuffer(char *buf, ssize_t bytes);
   bool ReadFailed() const;
