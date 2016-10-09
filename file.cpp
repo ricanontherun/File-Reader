@@ -35,13 +35,9 @@ namespace ricanontherun {
 File::File(const char *path, ACCESS_ADVICE advice) : __fd(open(path, O_RDONLY)) {
   this->init();
   this->TakeAdvice(advice);
-
-  std::cout << "Calling the c-style constructor\n";
 }
 
-File::File(const std::string & path, ACCESS_ADVICE advice) : File(path.c_str(), advice) {
-  std::cout << "Calling the string constructor\n";
-}
+File::File(const std::string & path, ACCESS_ADVICE advice) : File(path.c_str(), advice) {}
 
 File::~File() {
   if (this->Ok()) {
