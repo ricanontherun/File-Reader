@@ -116,6 +116,13 @@ public:
    */
   bool ReadOk() const;
 
+  /**
+   * Get the last system error which occured.
+   *
+   * @return
+   */
+  const std::string &GetLastError() const;
+
   static void SetDebug(bool);
 private:
   static bool debug;
@@ -134,6 +141,8 @@ private:
   // The status of the last Read() operation.
   READ_STATUS __last_read_status;
 
+  std::string __last_error;
+
   // File info.
   struct stat __fs;
 
@@ -146,6 +155,10 @@ private:
   ssize_t ReadIntoBuffer(char *buf, ssize_t bytes);
 
   void SetReadStatus(READ_STATUS);
+
+  void SetFileStatus(FILE_STATUS);
+
+  void CaptureSystemError();
 };
 
 } // Namespace File

@@ -45,7 +45,7 @@ File::File(const char *path, ACCESS_ADVICE advice) : __file_path(path), __fd(ope
  * @param advice
  * @return
  */
-File::File(const std::string & path, ACCESS_ADVICE advice) : File(path.c_str(), advice) {}
+File::File(const std::string &path, ACCESS_ADVICE advice) : File(path.c_str(), advice) {}
 
 File::~File() {
   if (this->Ok()) {
@@ -120,10 +120,11 @@ off_t File::BlockSize() const {
 
 void File::init() {
   if (!this->Ok() || !this->ReadFileInfo()) {
-    this->__fstatus = FILE_STATUS::ERROR;
+    this->SetFileStatus(FILE_STATUS::ERROR);
+    this->CaptureSystemError();
 
     if (File::debug) {
-      std::cerr << this->__file_path << ": " << strerror(errno) << "\n";
+      std::cerr << this->__file_path << ": " << this->__last_error << "\n";
     }
   }
 }
@@ -133,17 +134,23 @@ ssize_t File::ReadIntoBuffer(char *buf, ssize_t bytes) {
 
   // Set the read status.
   switch (bytes_read) {
-  case -1:this->__last_read_status = READ_STATUS::ERROR;
-    break;
-  case 0:this->__last_read_status = READ_STATUS::EXHAUSTED;
-    break;
-  default:this->__last_read_status = READ_STATUS::OK;
-    break;
+    case -1:this->SetReadStatus(READ_STATUS::ERROR);
+      this->CaptureSystemError();
+      break;
+    case 0:this->SetReadStatus(READ_STATUS::EXHAUSTED);
+      break;
+    default:this->SetReadStatus(READ_STATUS::OK);
+      break;
   }
 
   return bytes_read;
 }
 
+/**
+ * Set the last read status.
+ *
+ * @param status
+ */
 void File::SetReadStatus(READ_STATUS status) {
   this->__last_read_status = status;
 }
@@ -157,6 +164,10 @@ File::READ_STATUS File::GetReadStatus() const {
   return this->__last_read_status;
 }
 
+void File::SetFileStatus(FILE_STATUS status) {
+  this->__fstatus = status;
+}
+
 /**
  * Did the last call to Read() succeed?
  *
@@ -168,6 +179,14 @@ bool File::ReadOk() const {
 
 void File::SetDebug(bool debug) {
   File::debug = debug;
+}
+
+void File::CaptureSystemError() {
+  this->__last_error = strerror(errno);
+}
+
+const std::string &File::GetLastError() const {
+  return this->__last_error;
 }
 
 } // Namespace ricanontherun
