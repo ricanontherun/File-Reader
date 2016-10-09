@@ -102,6 +102,20 @@ public:
    */
   blksize_t BlockSize() const;
 
+  /**
+   * Get the status from the last call to Read()
+   *
+   * @return
+   */
+  READ_STATUS GetReadStatus() const;
+
+  /**
+   * Did the last call to Read() succeed?
+   *
+   * @return
+   */
+  bool ReadOk() const;
+
   static void SetDebug(bool);
 private:
   static bool debug;
@@ -130,10 +144,8 @@ private:
   void TakeAdvice(ACCESS_ADVICE advice) const;
 
   ssize_t ReadIntoBuffer(char *buf, ssize_t bytes);
-  bool ReadFailed() const;
 
   void SetReadStatus(READ_STATUS);
-  READ_STATUS GetReadStatus() const;
 };
 
 } // Namespace File

@@ -89,7 +89,7 @@ File::READ_STATUS File::Read(ssize_t bytes) {
 
   ssize_t bytes_read = this->ReadIntoBuffer(buf, bytes);
 
-  if (!this->ReadFailed()) {
+  if (this->ReadOk()) {
     // Top off the string at however many bytes were actually read.
     buf[bytes_read] = '\0';
 
@@ -148,12 +148,22 @@ void File::SetReadStatus(READ_STATUS status) {
   this->__last_read_status = status;
 }
 
+/**
+ * Get the status from the last call to Read()
+ *
+ * @return
+ */
 File::READ_STATUS File::GetReadStatus() const {
   return this->__last_read_status;
 }
 
-bool File::ReadFailed() const {
-  return this->__last_read_status == READ_STATUS::ERROR;
+/**
+ * Did the last call to Read() succeed?
+ *
+ * @return
+ */
+bool File::ReadOk() const {
+  return this->__last_read_status == READ_STATUS::OK;
 }
 
 void File::SetDebug(bool debug) {
