@@ -1,6 +1,6 @@
-# File Abstraction
+# Input File Abstraction [![Build Status](https://travis-ci.org/ricanontherun/file.svg?branch=master)](https://travis-ci.org/ricanontherun/file)
 
-An input file interface with fast reads in mind.
+An input file abstraction with optimized reads in mind.
 
 ```cpp
 using File = ricanontherun::File;
