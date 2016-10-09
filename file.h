@@ -104,7 +104,12 @@ public:
    */
   blksize_t BlockSize() const;
 
+  static void SetDebug(bool);
 private:
+  static bool debug;
+
+  std::string __file_path;
+
   // File descriptor
   int __fd;
 
@@ -119,6 +124,8 @@ private:
 
   // File info.
   struct stat __fs;
+
+  bool ReadFileInfo();
 
   void init();
 

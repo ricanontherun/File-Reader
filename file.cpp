@@ -24,6 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ricanontherun {
 
+bool File::debug = false;
+
 /**
  * Construct with flags and advice.
  *
@@ -32,7 +34,7 @@ namespace ricanontherun {
  * @param advice
  * @return
  */
-File::File(const char *path, ACCESS_ADVICE advice) : __fd(open(path, O_RDONLY)) {
+File::File(const char *path, ACCESS_ADVICE advice) : __file_path(path), __fd(open(path, O_RDONLY)) {
   this->init();
   this->TakeAdvice(advice);
 }
@@ -57,6 +59,15 @@ void File::TakeAdvice(ACCESS_ADVICE advice) const {
  */
 bool File::Ok() const {
   return this->__fd != static_cast<int>(FILE_STATUS::ERROR);
+}
+
+/**
+ * Read the underlying file's stat info.
+ *
+ * @return  Did the operation succeed?
+ */
+bool File::ReadFileInfo() {
+  return fstat(this->__fd, &(this->__fs)) != -1;
 }
 
 /**
@@ -96,13 +107,12 @@ off_t File::BlockSize() const {
 }
 
 void File::init() {
-  if (!this->Ok()) {
-    return;
-  }
-
-  if (fstat(this->__fd, &(this->__fs)) == -1) {
+  if (!this->Ok() || !this->ReadFileInfo()) {
     this->__fstatus = FILE_STATUS::ERROR;
-    std::cerr << "fstat: " << strerror(errno) << "\n";
+
+    if (File::debug) {
+      std::cerr << this->__file_path << ": " << strerror(errno) << "\n";
+    }
   }
 }
 
@@ -132,6 +142,10 @@ File::READ_STATUS File::GetReadStatus() const {
 
 bool File::ReadFailed() const {
   return this->__last_read_status == READ_STATUS::ERROR;
+}
+
+void File::SetDebug(bool debug) {
+  File::debug = debug;
 }
 
 } // Namespace ricanontherun
