@@ -28,8 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ricanontherun {
 
-#define IS_READ(flags) ( ((flags) == O_RDONLY) || ((flags) & O_RDWR) )
-
 class File {
 public:
   // Possible return statuses for a read operation.
