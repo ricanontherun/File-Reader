@@ -27,10 +27,9 @@ namespace ricanontherun {
 bool File::debug = false;
 
 /**
- * Construct with flags and advice.
+ * C style string constructor
  *
  * @param path
- * @param flags
  * @param advice
  * @return
  */
@@ -39,6 +38,13 @@ File::File(const char *path, ACCESS_ADVICE advice) : __file_path(path), __fd(ope
   this->TakeAdvice(advice);
 }
 
+/**
+ * C++ style string constructor
+ *
+ * @param path
+ * @param advice
+ * @return
+ */
 File::File(const std::string & path, ACCESS_ADVICE advice) : File(path.c_str(), advice) {}
 
 File::~File() {
@@ -96,12 +102,18 @@ File::READ_STATUS File::Read(ssize_t bytes) {
 
 /**
  * Return the bytes that were read in the previous Read() operation.
+ *
  * @return
  */
 const std::string &File::Get() const {
   return this->__buf;
 }
 
+/**
+ * Get the optimum file block size.
+ *
+ * @return
+ */
 off_t File::BlockSize() const {
   return this->Ok() ? this->__fs.st_blksize : 0;
 }
