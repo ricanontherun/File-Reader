@@ -5,7 +5,7 @@ An input file abstraction with optimized reads in mind.
 ```cpp
 using File = ricanontherun::File;
 
-// Create a file object, defaults to read-only mode.
+// Create a file object, defaults to normal advice.
 File f(path);
 
 // Create a file object, with sequential read advice
