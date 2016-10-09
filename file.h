@@ -55,7 +55,7 @@ public:
   };
 
   /**
-   * Constructor
+   * C-Style path constructor
    *
    * @param path
    * @param flags
@@ -63,6 +63,16 @@ public:
    * @return
    */
   File(const char *path, ACCESS_ADVICE advice = ACCESS_ADVICE::NORMAL);
+
+  /**
+   * String path constructor
+   *
+   * @param path
+   * @param flags
+   * @param advice
+   * @return
+   */
+  File(const std::string & path, ACCESS_ADVICE advice = ACCESS_ADVICE::NORMAL);
 
   ~File();
 
