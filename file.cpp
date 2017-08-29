@@ -81,11 +81,10 @@ bool File::Ok() const {
  */
 File::READ_STATUS File::Read(ssize_t bytes) {
     bytes = bytes != 0 ? bytes : this->file_stat.st_blksize;
-    char buf[bytes + 1];
+    char buf[bytes];
     ssize_t bytes_read = read(this->descriptor, buf, bytes);
 
   if ( bytes_read > 0) {
-    buf[bytes_read] = '\0';
     this->buffer = std::string(buf);
 
     return READ_STATUS::OK;
