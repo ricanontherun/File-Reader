@@ -1,6 +1,6 @@
 # File Abstraction [![Build Status](https://travis-ci.org/ricanontherun/file.svg?branch=master)](https://travis-ci.org/ricanontherun/file)
 
-A very thing wrapper over Linux IO system calls, capable of fast reads.
+A very thin wrapper over Linux IO system calls, capable of fast reads.
 
 ```cpp
 // Create a file object, defaults to normal advice.
