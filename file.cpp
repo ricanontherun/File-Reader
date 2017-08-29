@@ -18,44 +18,50 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "file.h"
-#include <iostream>
 #include <string.h>
 #include <errno.h>
 
-namespace ricanontherun {
+File::File() :
+    descriptor(0),
+    buffer(""),
+    advice(ACCESS_ADVICE::SEQUENTIAL),
+    mode(O_RDONLY)
+{}
 
-bool File::debug = false;
+File::STATUS File::Open(const char * path) {
+    if (access(path, F_OK) == -1) {
+        return File::STATUS::NOT_FOUND;
+    }
 
-/**
- * C style string constructor
- *
- * @param path
- * @param advice
- * @return
- */
-File::File(const char *path, ACCESS_ADVICE advice) : __file_path(path), __fd(open(path, O_RDONLY)) {
-  this->init();
-  this->TakeAdvice(advice);
+    this->descriptor = open(path, this->mode);
+
+    if ( this->descriptor == -1 ) {
+        return File::STATUS::ERROR;
+    }
+
+    return this->initialize();
 }
 
-/**
- * C++ style string constructor
- *
- * @param path
- * @param advice
- * @return
- */
-File::File(const std::string &path, ACCESS_ADVICE advice) : File(path.c_str(), advice) {}
+File::STATUS File::Open(const std::string & path) {
+    return this->Open(path.c_str());
+}
+
+File::STATUS File::initialize() {
+    int status = fstat(this->descriptor, &(this->file_stat));
+
+    if ( status == -1 ) {
+        return File::STATUS::ERROR;
+    }
+
+    // Advise the kernel of how the file will be read.
+    posix_fadvise(this->descriptor, 0, 0, static_cast<int>(this->advice));
+
+    return File::STATUS::OK;
+}
 
 File::~File() {
   if (this->Ok()) {
-    close(this->__fd);
-  }
-}
-
-void File::TakeAdvice(ACCESS_ADVICE advice) const {
-  if (advice != ACCESS_ADVICE::NORMAL) {
-    posix_fadvise(this->__fd, 0, 0, static_cast<int>(advice));
+    close(this->descriptor);
   }
 }
 
@@ -64,16 +70,7 @@ void File::TakeAdvice(ACCESS_ADVICE advice) const {
  * @return
  */
 bool File::Ok() const {
-  return this->__fd != static_cast<int>(FILE_STATUS::ERROR);
-}
-
-/**
- * Read the underlying file's stat info.
- *
- * @return  Did the operation succeed?
- */
-bool File::ReadFileInfo() {
-  return fstat(this->__fd, &(this->__fs)) != -1;
+  return this->descriptor > 0;
 }
 
 /**
@@ -83,21 +80,18 @@ bool File::ReadFileInfo() {
  * @return
  */
 File::READ_STATUS File::Read(ssize_t bytes) {
-  bytes = bytes != 0 ? bytes : this->BlockSize();
+    bytes = bytes != 0 ? bytes : this->file_stat.st_blksize;
+    char buf[bytes + 1];
+    ssize_t bytes_read = read(this->descriptor, buf, bytes);
 
-  char buf[bytes + 1];
-
-  ssize_t bytes_read = this->ReadIntoBuffer(buf, bytes);
-
-  if (this->ReadOk()) {
-    // Top off the string at however many bytes were actually read.
+  if ( bytes_read > 0) {
     buf[bytes_read] = '\0';
+    this->buffer = std::string(buf);
 
-    // Set the internal buffer.
-    this->__buf = std::string(buf);
+    return READ_STATUS::OK;
+  } else {
+    return bytes_read == 0 ? READ_STATUS::END_OF_FILE : READ_STATUS::ERROR;
   }
-
-  return this->GetReadStatus();
 }
 
 /**
@@ -106,87 +100,15 @@ File::READ_STATUS File::Read(ssize_t bytes) {
  * @return
  */
 const std::string &File::Get() const {
-  return this->__buf;
+  return this->buffer;
 }
 
-/**
- * Get the optimum file block size.
- *
- * @return
- */
-off_t File::BlockSize() const {
-  return this->Ok() ? this->__fs.st_blksize : 0;
+File& File::SetReadAdvice(ACCESS_ADVICE advice) {
+    this->advice = advice;
+    return *this;
 }
 
-void File::init() {
-  if (!this->Ok() || !this->ReadFileInfo()) {
-    this->SetFileStatus(FILE_STATUS::ERROR);
-    this->CaptureSystemError();
-
-    if (File::debug) {
-      std::cerr << this->__file_path << ": " << this->__last_error << "\n";
-    }
-  }
+File& File::SetOpenMode(int mode) {
+    this->mode = mode;
+    return *this;
 }
-
-ssize_t File::ReadIntoBuffer(char *buf, ssize_t bytes) {
-  ssize_t bytes_read = read(this->__fd, buf, bytes);
-
-  // Set the read status.
-  switch (bytes_read) {
-    case -1:this->SetReadStatus(READ_STATUS::ERROR);
-      this->CaptureSystemError();
-      break;
-    case 0:this->SetReadStatus(READ_STATUS::EXHAUSTED);
-      break;
-    default:this->SetReadStatus(READ_STATUS::OK);
-      break;
-  }
-
-  return bytes_read;
-}
-
-/**
- * Set the last read status.
- *
- * @param status
- */
-void File::SetReadStatus(READ_STATUS status) {
-  this->__last_read_status = status;
-}
-
-/**
- * Get the status from the last call to Read()
- *
- * @return
- */
-File::READ_STATUS File::GetReadStatus() const {
-  return this->__last_read_status;
-}
-
-void File::SetFileStatus(FILE_STATUS status) {
-  this->__fstatus = status;
-}
-
-/**
- * Did the last call to Read() succeed?
- *
- * @return
- */
-bool File::ReadOk() const {
-  return this->__last_read_status == READ_STATUS::OK;
-}
-
-void File::SetDebug(bool debug) {
-  File::debug = debug;
-}
-
-void File::CaptureSystemError() {
-  this->__last_error = strerror(errno);
-}
-
-const std::string &File::GetLastError() const {
-  return this->__last_error;
-}
-
-} // Namespace ricanontherun

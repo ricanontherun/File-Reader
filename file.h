@@ -26,20 +26,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 #include <string>
 
-namespace ricanontherun {
-
 class File {
 public:
-  // Possible return statuses for a read operation.
-  // These generally line up with POSIX interface return types.
   enum class READ_STATUS {
-    ERROR = -1,
-    EXHAUSTED = 0, // No more bytes to read.
-    OK = 1
+    OK = 0,
+    ERROR,
+    END_OF_FILE
   };
 
-  enum class FILE_STATUS {
-    ERROR = -1
+  enum class STATUS {
+    OK = 0,
+    ERROR,
+    NOT_FOUND
   };
 
   // http://man7.org/linux/man-pages/man2/posix_fadvise.2.html
@@ -52,26 +50,7 @@ public:
     DONTNEED = POSIX_FADV_DONTNEED
   };
 
-  /**
-   * C-Style path constructor
-   *
-   * @param path
-   * @param flags
-   * @param advice
-   * @return
-   */
-  File(const char *path, ACCESS_ADVICE advice = ACCESS_ADVICE::NORMAL);
-
-  /**
-   * String path constructor
-   *
-   * @param path
-   * @param flags
-   * @param advice
-   * @return
-   */
-  File(const std::string & path, ACCESS_ADVICE advice = ACCESS_ADVICE::NORMAL);
-
+  File();
   ~File();
 
   /**
@@ -95,72 +74,19 @@ public:
    */
   const std::string &Get() const;
 
-  /**
-   * Get the I/O blocksize.
-   *
-   * @return
-   */
-  blksize_t BlockSize() const;
+  File& SetReadAdvice(ACCESS_ADVICE advice);
+  File& SetOpenMode(int mode);
 
-  /**
-   * Get the status from the last call to Read()
-   *
-   * @return
-   */
-  READ_STATUS GetReadStatus() const;
-
-  /**
-   * Did the last call to Read() succeed?
-   *
-   * @return
-   */
-  bool ReadOk() const;
-
-  /**
-   * Get the last system error which occured.
-   *
-   * @return
-   */
-  const std::string &GetLastError() const;
-
-  static void SetDebug(bool);
+  STATUS Open(const char * path);
+  STATUS Open(const std::string & path);
 private:
-  static bool debug;
+  int descriptor;
+  ACCESS_ADVICE advice;
+  int mode;
+  std::string buffer;
+  struct stat file_stat;
 
-  std::string __file_path;
-
-  // File descriptor
-  int __fd;
-
-  // Current status of file.
-  FILE_STATUS __fstatus;
-
-  // Internal read buffer.
-  std::string __buf;
-
-  // The status of the last Read() operation.
-  READ_STATUS __last_read_status;
-
-  std::string __last_error;
-
-  // File info.
-  struct stat __fs;
-
-  bool ReadFileInfo();
-
-  void init();
-
-  void TakeAdvice(ACCESS_ADVICE advice) const;
-
-  ssize_t ReadIntoBuffer(char *buf, ssize_t bytes);
-
-  void SetReadStatus(READ_STATUS);
-
-  void SetFileStatus(FILE_STATUS);
-
-  void CaptureSystemError();
+  STATUS initialize();
 };
-
-} // Namespace File
 
 #endif // RICANONTHERUN_FILE_H

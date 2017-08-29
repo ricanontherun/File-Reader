@@ -1,17 +1,18 @@
-# Input File Abstraction [![Build Status](https://travis-ci.org/ricanontherun/file.svg?branch=master)](https://travis-ci.org/ricanontherun/file)
+# File Abstraction [![Build Status](https://travis-ci.org/ricanontherun/file.svg?branch=master)](https://travis-ci.org/ricanontherun/file)
 
-An input file abstraction with optimized reads in mind.
+A very thing wrapper over Linux IO system calls, capable of fast reads.
 
 ```cpp
-using File = ricanontherun::File;
-
 // Create a file object, defaults to normal advice.
-File f(path);
+File f;
+f.Open(path)
 
 // Create a file object, with sequential read advice
-File f(path, File::ACCESS_ADVICE::SEQUENTIAL);
+File f;
 
-if ( f.Ok() ) {
+File::STATUS status = f.SetReadAdvice(File::ACCESS_ADVICE::SEQUENTIAL).Open(path);
+
+if (status == File::Status::OK ) { // You can also do f.Ok()
     // Read bytes according to the file's optimal block size.
     File::READ_STATUS status = f.Read();
     
@@ -24,9 +25,9 @@ if ( f.Ok() ) {
 
 ## A more practical usage
 ```cpp
-using File = ricanontherun::File;
+File f;
 
-File f("file.txt", File::ACCESS_ADVICE::SEQUENTIAL);
+File::STATUS status = f.Open(File::ACCESS_ADVICE::SEQUENTIAL);
 
 if ( !f.Ok() ) {
     // handle error
@@ -39,11 +40,10 @@ if ( !f.Ok() ) {
         // Do something with data
     }
     
-    if ( status == File::READ_STATUS::EXHAUSTED ) {
+    if ( status == File::READ_STATUS::END_OF_FILE ) {
         // End of file
     } else if ( status == File::READ_STATUS::ERROR ) {
         // An error occured
     }
 }
 ```
-Das it mayne.
