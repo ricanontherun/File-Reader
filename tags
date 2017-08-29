@@ -580,6 +580,7 @@ REQUIRE_THROWS_WITH	tests/catch.hpp	/^#define REQUIRE_THROWS_WITH(/;"	d
 RICANONTHERUN_FILE_H	file.h	/^#define  RICANONTHERUN_FILE_H$/;"	d
 RandomNumberGenerator	tests/catch.hpp	/^    struct RandomNumberGenerator {$/;"	s	namespace:Catch
 Read	file.cpp	/^File::READ_STATUS File::Read(ssize_t bytes) {$/;"	f	class:File	typeref:typename:File::READ_STATUS
+ReadAll	file.cpp	/^File::READ_STATUS File::ReadAll() {$/;"	f	class:File	typeref:typename:File::READ_STATUS
 ReconstructedExpression	tests/catch.hpp	/^            ReconstructedExpression = Yellow,$/;"	e	enum:Catch::Colour::Code
 Red	tests/catch.hpp	/^            Red,$/;"	e	enum:Catch::Colour::Code
 RegistrarForTagAliases	tests/catch.hpp	/^    RegistrarForTagAliases::RegistrarForTagAliases( char const* alias, char const* tag, SourceLi/;"	f	class:Catch::RegistrarForTagAliases
@@ -934,7 +935,7 @@ addWarning	tests/catch.hpp	/^    inline void addWarning( ConfigData& config, std
 adjustCase	tests/catch.hpp	/^        std::string adjustCase( std::string const& str ) const {$/;"	f	class:Catch::WildcardPattern	typeref:typename:std::string
 adjustString	tests/catch.hpp	/^  std::string adjustString(std::string const &str) const {$/;"	f	struct:Catch::Matchers::Impl::StdString::CasedString	typeref:typename:std::string
 advanceGeneratorsForCurrentTest	tests/catch.hpp	/^        virtual bool advanceGeneratorsForCurrentTest() {$/;"	f	class:Catch::Context	typeref:typename:bool
-advice	file.h	/^  ACCESS_ADVICE advice;$/;"	m	class:File	typeref:typename:ACCESS_ADVICE
+advice	file.h	/^    ACCESS_ADVICE advice;$/;"	m	class:File	typeref:typename:ACCESS_ADVICE
 all	tests/catch.hpp	/^        std::string all() const {$/;"	f	struct:Catch::TagInfo	typeref:typename:std::string
 allOk	tests/catch.hpp	/^  bool allOk() const {$/;"	f	struct:Catch::Counts	typeref:typename:bool
 allPassed	tests/catch.hpp	/^  bool allPassed() const {$/;"	f	struct:Catch::Counts	typeref:typename:bool
@@ -991,7 +992,8 @@ bindProcessName	tests/catch.hpp	/^        void bindProcessName( void (C::*_unary
 bothOrAll	tests/catch.hpp	/^        std::string bothOrAll( std::size_t count ) const {$/;"	f	struct:Catch::CompactReporter	typeref:typename:std::string
 boundField	tests/catch.hpp	/^        Detail::BoundArgFunction<ConfigT> boundField;$/;"	m	struct:Clara::CommonArgProperties	typeref:typename:Detail::BoundArgFunction<ConfigT>
 branchName	tests/catch.hpp	/^        std::string const branchName;$/;"	m	struct:Catch::Version	typeref:typename:std::string const
-buffer	file.h	/^  std::string buffer;$/;"	m	class:File	typeref:typename:std::string
+buffer	file.h	/^    std::string buffer;$/;"	m	class:File	typeref:typename:std::string
+buffer	tests/ReadTests.cpp	/^        std::stringstream buffer;$/;"	v	typeref:typename:std::stringstream
 build	tests/catch.hpp	/^    AssertionResult ResultBuilder::build() const$/;"	f	class:Catch::ResultBuilder	typeref:typename:AssertionResult
 buildNumber	tests/catch.hpp	/^        unsigned int const buildNumber;$/;"	m	struct:Catch::Version	typeref:typename:unsigned int const
 captureExpectedException	tests/catch.hpp	/^    void ResultBuilder::captureExpectedException( Matchers::Impl::Matcher<std::string> const& ma/;"	f	class:Catch::ResultBuilder	typeref:typename:void
@@ -1100,7 +1102,7 @@ description	tests/catch.hpp	/^        std::string description;$/;"	m	struct:Clar
 description	tests/catch.hpp	/^  const char *description;$/;"	m	struct:Catch::NameAndDesc	typeref:typename:const char *
 description	tests/catch.hpp	/^  std::string description;$/;"	m	struct:Catch::SectionInfo	typeref:typename:std::string
 description	tests/catch.hpp	/^  std::string description;$/;"	m	struct:Catch::TestCaseInfo	typeref:typename:std::string
-descriptor	file.h	/^  int descriptor;$/;"	m	class:File	typeref:typename:int
+descriptor	file.h	/^    int descriptor;$/;"	m	class:File	typeref:typename:int
 detail	tests/catch.hpp	/^            ArgBuilder& detail( std::string const& detail ) {$/;"	f	class:Clara::CommandLine::ArgBuilder	typeref:typename:ArgBuilder &
 detail	tests/catch.hpp	/^        std::string detail;$/;"	m	struct:Clara::CommonArgProperties	typeref:typename:std::string
 dimColour	tests/catch.hpp	/^            static Colour::Code dimColour() { return Colour::FileName; }$/;"	f	class:Catch::CompactReporter::AssertionPrinter	typeref:typename:Colour::Code
@@ -1144,7 +1146,7 @@ file_path	tests/TestInterface.cpp	/^        const char *file_path = "..\/data\/e
 file_path	tests/TestInterface.cpp	/^        const char *file_path = "..\/data\/file";$/;"	v	typeref:typename:const char *
 file_path	tests/TestInterface.cpp	/^        std::string file_path = "..\/data\/file";$/;"	v	typeref:typename:std::string
 file_path	tests/TestInterface.cpp	/^        std::string file_path = "..\/data\/i_dont_exist";$/;"	v	typeref:typename:std::string
-file_stat	file.h	/^  struct stat file_stat;$/;"	m	class:File	typeref:struct:stat
+file_stat	file.h	/^    struct stat file_stat;$/;"	m	class:File	typeref:struct:stat
 filenamesAsTags	tests/catch.hpp	/^        bool filenamesAsTags;$/;"	m	struct:Catch::ConfigData	typeref:typename:bool
 filterTests	tests/catch.hpp	/^    std::vector<TestCase> filterTests( std::vector<TestCase> const& testCases, TestSpec const& t/;"	f	namespace:Catch	typeref:typename:std::vector<TestCase>
 find	tests/catch.hpp	/^    Option<TagAlias> TagAliasRegistry::find( std::string const& alias ) const {$/;"	f	class:Catch::TagAliasRegistry	typeref:typename:Option<TagAlias>
@@ -1508,7 +1510,7 @@ messages	tests/catch.hpp	/^            std::vector<MessageInfo> messages;$/;"	m	
 messages	tests/catch.hpp	/^            std::vector<MessageInfo> messages;$/;"	m	class:Catch::ConsoleReporter::AssertionPrinter	typeref:typename:std::vector<MessageInfo>
 minorVersion	tests/catch.hpp	/^        unsigned int const minorVersion;$/;"	m	struct:Catch::Version	typeref:typename:unsigned int const
 missingAssertions	tests/catch.hpp	/^        bool missingAssertions;$/;"	m	struct:Catch::SectionStats	typeref:typename:bool
-mode	file.h	/^  int mode;$/;"	m	class:File	typeref:typename:int
+mode	file.h	/^    int mode;$/;"	m	class:File	typeref:typename:int
 mode	tests/catch.hpp	/^        Mode mode;$/;"	m	class:Clara::Parser	typeref:typename:Mode
 move	tests/catch.hpp	/^  void move(CompositeGenerator &other) {$/;"	f	class:Catch::CompositeGenerator	typeref:typename:void
 moveNext	tests/catch.hpp	/^        bool moveNext() {$/;"	f	class:Catch::GeneratorsForTest	typeref:typename:bool
@@ -1858,6 +1860,7 @@ suiteTimer	tests/catch.hpp	/^        Timer suiteTimer;$/;"	m	class:Catch::JunitR
 swap	tests/catch.hpp	/^    void TestCase::swap( TestCase& other ) {$/;"	f	class:Catch::TestCase	typeref:typename:void
 swap	tests/catch.hpp	/^  void swap(Ptr &other) { std::swap(m_p, other.m_p); }$/;"	f	class:Catch::Ptr	typeref:typename:void
 sync	tests/catch.hpp	/^        int sync() {$/;"	f	class:Catch::StreamBufImpl	typeref:typename:int
+t	tests/ReadTests.cpp	/^        std::ifstream t("..\/data\/file");$/;"	v	typeref:typename:std::ifstream
 t	tests/catch.hpp	/^  static T const &t;$/;"	m	struct:Catch::Detail::IsStreamInsertable	typeref:typename:T const &
 tabChar	tests/catch.hpp	/^        char tabChar;               \/\/ If this char is seen the indent is changed to current p/;"	m	struct:CLICHE_TBC_TEXT_FORMAT_OUTER_NAMESPACE::Tbc::TextAttributes	typeref:typename:char
 tabChar	tests/catch.hpp	/^        char tabChar;               \/\/ If this char is seen the indent is changed to current p/;"	m	struct:STITCH_TBC_TEXT_FORMAT_OUTER_NAMESPACE::Tbc::TextAttributes	typeref:typename:char

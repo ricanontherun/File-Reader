@@ -1,5 +1,8 @@
 #include "test_header.h"
 #include <string>
+#include <iostream>
+#include <sstream>
+#include <fstream>
 #include "../file.h"
 
 TEST_CASE("File::Read") {
@@ -46,5 +49,21 @@ TEST_CASE("File::Read") {
 
         File::READ_STATUS status = f.Read(); // Let it read the optimum size.
         REQUIRE(status == File::READ_STATUS::END_OF_FILE);
+    }
+
+    SECTION("It can read an entire file") {
+        File f;
+        f.Open("../data/file");
+
+        REQUIRE(f.Ok());
+
+        f.ReadAll();
+
+        std::ifstream t("../data/file");
+        std::stringstream buffer;
+        buffer << t.rdbuf();
+
+        REQUIRE(buffer.str() == f.Get());
+        REQUIRE(buffer.str().length() == f.Get().length());
     }
 }

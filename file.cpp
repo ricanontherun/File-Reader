@@ -94,6 +94,24 @@ File::READ_STATUS File::Read(ssize_t bytes) {
   }
 }
 
+File::READ_STATUS File::ReadAll() {
+    char buf[this->file_stat.st_size + 1];
+    char *buf_ptr = buf;
+    ssize_t bytes_read = 0;
+
+    // As long as bytes are read from the file, advance the buffer pointer.
+    while ((bytes_read = read(this->descriptor, buf_ptr, this->file_stat.st_blksize)) > 0) {
+        buf_ptr += bytes_read;
+    }
+
+    if ( bytes_read == 0 )  { // EOF
+        this->buffer = std::string(buf);
+        return READ_STATUS::END_OF_FILE;
+    } else {
+        return READ_STATUS::ERROR;
+    }
+}
+
 /**
  * Return the bytes that were read in the previous Read() operation.
  *

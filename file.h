@@ -55,22 +55,20 @@ public:
 
   /**
    * Was the file opened without error?
-   * @return
    */
   bool Ok() const;
 
   /**
    * Read bytes from the file. When the bytes argument is omitted, the 'optimal'
    * block size is used from a call to fstat.
-   *
-   * @param bytes
-   * @return
    */
   READ_STATUS Read(ssize_t bytes = 0);
 
+  // Read the entire file into the internal buffer, using the optimal block size.
+  READ_STATUS ReadAll();
+
   /**
    * Return the bytes that were read in the previous Read() operation.
-   * @return
    */
   const std::string &Get() const;
 
@@ -80,13 +78,13 @@ public:
   STATUS Open(const char * path);
   STATUS Open(const std::string & path);
 private:
-  int descriptor;
-  ACCESS_ADVICE advice;
-  int mode;
-  std::string buffer;
-  struct stat file_stat;
+    int descriptor;
+    ACCESS_ADVICE advice;
+    int mode;
+    std::string buffer;
+    struct stat file_stat;
 
-  STATUS initialize();
+    STATUS initialize();
 };
 
 #endif // RICANONTHERUN_FILE_H
