@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 #include <errno.h>
 #include <sys/file.h>
+#include <iostream>
 
 File::File() :
     descriptor(0),
@@ -85,7 +86,7 @@ File::READ_STATUS File::Read(ssize_t bytes) {
     char buf[bytes];
     ssize_t bytes_read = 0;
 
-    READ_STATUS status = this->ReadIntoBuffer((void *) buf, bytes, &bytes_read);
+    READ_STATUS status = this->ReadIntoBuffer(buf, bytes, &bytes_read);
 
     if ( status == READ_STATUS::OK ) {
         this->buffer = std::string(buf);
@@ -100,6 +101,7 @@ File::READ_STATUS File::ReadAll() {
     ssize_t bytes_read = 0;
 
     do {
+        // TODO: this->ReadInfoBuffer((void *) buf, this->file_stat.st_size, &bytes_read);
         bytes_read = read(this->descriptor, buf_ptr, this->file_stat.st_blksize);
         buf_ptr += bytes_read;
     } while (bytes_read > 0);
@@ -135,28 +137,38 @@ File& File::SetOpenMode(int mode) {
     return *this;
 }
 
-// TODO: Yes, we're locking files now. But it still might be a good idea to
-// track the current offset of the file outselves. That way if two or more files
-// are reading from the file, we aren't relying on the internal data structures for offsets.
-inline File::READ_STATUS File::ReadIntoBuffer(void * buffer, size_t bytes_to_read, ssize_t * bytes_read) {
-    int flock_status = flock(this->descriptor, LOCK_EX);
+inline File::READ_STATUS File::ReadIntoBuffer(const char * buffer, size_t bytes_to_read, ssize_t * bytes_read) {
     *bytes_read = 0;
 
-    if ( flock_status == -1 ) {
+    if ( flock(this->descriptor, LOCK_EX) == -1 ) {
         return READ_STATUS::ERROR;
     }
 
-    *bytes_read = read(this->descriptor, buffer, bytes_to_read);
+    lseek(this->descriptor, 0, SEEK_SET);
 
-    if ( *bytes_read == -1 ) {
+    ssize_t num_bytes_read = 0;
+
+    do {
+        // We can't read past the buffer...we need to know how many are left.
+        ssize_t read_size = this->file_stat.st_blksize < bytes_to_read ? this->file_stat.st_blksize : bytes_to_read;
+        num_bytes_read = read(this->descriptor, (void *) buffer, read_size);
+
+        if (num_bytes_read <= 0) {
+            break;
+        }
+
+        *bytes_read += num_bytes_read;
+        buffer += num_bytes_read;
+        bytes_to_read -= num_bytes_read;
+    } while (true);
+
+    if ( flock(this->descriptor, LOCK_UN) == -1 ) {
         return READ_STATUS::ERROR;
     }
 
-    flock_status = flock(this->descriptor, LOCK_UN);
-
-    if ( flock_status == -1 ) {
+    if ( num_bytes_read == -1 ) {
         return READ_STATUS::ERROR;
     }
 
-    return *bytes_read == 0 ? READ_STATUS::END_OF_FILE : READ_STATUS::OK;
+    return READ_STATUS::OK;
 }

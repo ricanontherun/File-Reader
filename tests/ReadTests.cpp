@@ -6,7 +6,7 @@
 #include "../file.h"
 
 TEST_CASE("File::Read") {
-    SECTION("Test that it reads chunks of the most efficient size by default") {
+    SECTION("Test that it reads chunks of the most efficient size by default", "[yarp]") {
         const char *file_path = "../data/file";
         File f;
         File::STATUS open_status = f.Open(file_path);
