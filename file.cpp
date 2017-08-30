@@ -88,7 +88,7 @@ File::READ_STATUS File::Read(ssize_t bytes) {
 
     READ_STATUS status = this->ReadIntoBuffer(buf, bytes, &bytes_read);
 
-    if ( status == READ_STATUS::OK ) {
+    if ( status != READ_STATUS::ERROR ) {
         this->buffer = std::string(buf);
     }
 
@@ -100,18 +100,13 @@ File::READ_STATUS File::ReadAll() {
     char *buf_ptr = buf;
     ssize_t bytes_read = 0;
 
-    do {
-        // TODO: this->ReadInfoBuffer((void *) buf, this->file_stat.st_size, &bytes_read);
-        bytes_read = read(this->descriptor, buf_ptr, this->file_stat.st_blksize);
-        buf_ptr += bytes_read;
-    } while (bytes_read > 0);
+    READ_STATUS status = this->ReadIntoBuffer(buf, this->file_stat.st_size, &bytes_read);
 
-    if ( bytes_read == 0 )  { // EOF
+    if (status != READ_STATUS::ERROR)  { // EOF
         this->buffer = std::string(buf);
-        return READ_STATUS::END_OF_FILE;
-    } else {
-        return READ_STATUS::ERROR;
     }
+
+    return status;
 }
 
 void File::Write(const char * buf, size_t len) {
@@ -137,30 +132,38 @@ File& File::SetOpenMode(int mode) {
     return *this;
 }
 
-inline File::READ_STATUS File::ReadIntoBuffer(const char * buffer, size_t bytes_to_read, ssize_t * bytes_read) {
+File::READ_STATUS File::ReadIntoBuffer(const char * buffer, size_t bytes_to_read, ssize_t * bytes_read) {
     *bytes_read = 0;
 
     if ( flock(this->descriptor, LOCK_EX) == -1 ) {
         return READ_STATUS::ERROR;
     }
 
+    // Reset the file's offset, in case it's being used by someone else.
     lseek(this->descriptor, 0, SEEK_SET);
 
     ssize_t num_bytes_read = 0;
 
     do {
-        // We can't read past the buffer...we need to know how many are left.
+        // Use the optimum block size as long as there is room for it. This assumed the buffer
+        // we've been given has enough room.
         ssize_t read_size = this->file_stat.st_blksize < bytes_to_read ? this->file_stat.st_blksize : bytes_to_read;
+
         num_bytes_read = read(this->descriptor, (void *) buffer, read_size);
 
         if (num_bytes_read <= 0) {
             break;
         }
 
+        // Add the output variable.
         *bytes_read += num_bytes_read;
+
+        // Move the buffer forward for the next read.
         buffer += num_bytes_read;
+
+        // Deduct what we've just read from the target byte count.
         bytes_to_read -= num_bytes_read;
-    } while (true);
+    } while (bytes_to_read > 0);
 
     if ( flock(this->descriptor, LOCK_UN) == -1 ) {
         return READ_STATUS::ERROR;
@@ -170,5 +173,5 @@ inline File::READ_STATUS File::ReadIntoBuffer(const char * buffer, size_t bytes_
         return READ_STATUS::ERROR;
     }
 
-    return READ_STATUS::OK;
+    return num_bytes_read == 0 ? READ_STATUS::END_OF_FILE : READ_STATUS::OK;
 }

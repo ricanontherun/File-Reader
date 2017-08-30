@@ -581,7 +581,7 @@ RICANONTHERUN_FILE_H	file.h	/^#define  RICANONTHERUN_FILE_H$/;"	d
 RandomNumberGenerator	tests/catch.hpp	/^    struct RandomNumberGenerator {$/;"	s	namespace:Catch
 Read	file.cpp	/^File::READ_STATUS File::Read(ssize_t bytes) {$/;"	f	class:File	typeref:typename:File::READ_STATUS
 ReadAll	file.cpp	/^File::READ_STATUS File::ReadAll() {$/;"	f	class:File	typeref:typename:File::READ_STATUS
-ReadIntoBuffer	file.cpp	/^inline File::READ_STATUS File::ReadIntoBuffer(const char * buffer, size_t bytes_to_read, ssize_t/;"	f	class:File	typeref:typename:File::READ_STATUS
+ReadIntoBuffer	file.cpp	/^File::READ_STATUS File::ReadIntoBuffer(const char * buffer, size_t bytes_to_read, ssize_t * byte/;"	f	class:File	typeref:typename:File::READ_STATUS
 ReconstructedExpression	tests/catch.hpp	/^            ReconstructedExpression = Yellow,$/;"	e	enum:Catch::Colour::Code
 Red	tests/catch.hpp	/^            Red,$/;"	e	enum:Catch::Colour::Code
 RegistrarForTagAliases	tests/catch.hpp	/^    RegistrarForTagAliases::RegistrarForTagAliases( char const* alias, char const* tag, SourceLi/;"	f	class:Catch::RegistrarForTagAliases
