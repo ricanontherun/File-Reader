@@ -58,6 +58,9 @@ public:
    */
   bool Ok() const;
 
+  void Write();
+  void WriteAll();
+
   /**
    * Read bytes from the file. When the bytes argument is omitted, the 'optimal'
    * block size is used from a call to fstat.
@@ -66,6 +69,8 @@ public:
 
   // Read the entire file into the internal buffer, using the optimal block size.
   READ_STATUS ReadAll();
+
+  void Write(const char * buf, size_t len);
 
   /**
    * Return the bytes that were read in the previous Read() operation.
@@ -85,6 +90,8 @@ private:
     struct stat file_stat;
 
     STATUS initialize();
+
+    READ_STATUS ReadIntoBuffer(void * buffer, size_t bytes_to_read, ssize_t * bytes_read);
 };
 
 #endif // RICANONTHERUN_FILE_H

@@ -581,6 +581,7 @@ RICANONTHERUN_FILE_H	file.h	/^#define  RICANONTHERUN_FILE_H$/;"	d
 RandomNumberGenerator	tests/catch.hpp	/^    struct RandomNumberGenerator {$/;"	s	namespace:Catch
 Read	file.cpp	/^File::READ_STATUS File::Read(ssize_t bytes) {$/;"	f	class:File	typeref:typename:File::READ_STATUS
 ReadAll	file.cpp	/^File::READ_STATUS File::ReadAll() {$/;"	f	class:File	typeref:typename:File::READ_STATUS
+ReadIntoBuffer	file.cpp	/^inline File::READ_STATUS File::ReadIntoBuffer(void * buffer, size_t bytes_to_read, ssize_t * byt/;"	f	class:File	typeref:typename:File::READ_STATUS
 ReconstructedExpression	tests/catch.hpp	/^            ReconstructedExpression = Yellow,$/;"	e	enum:Catch::Colour::Code
 Red	tests/catch.hpp	/^            Red,$/;"	e	enum:Catch::Colour::Code
 RegistrarForTagAliases	tests/catch.hpp	/^    RegistrarForTagAliases::RegistrarForTagAliases( char const* alias, char const* tag, SourceLi/;"	f	class:Catch::RegistrarForTagAliases
@@ -886,6 +887,7 @@ WildcardPattern	tests/catch.hpp	/^    class WildcardPattern {$/;"	c	namespace:Ca
 WildcardPosition	tests/catch.hpp	/^        enum WildcardPosition {$/;"	g	class:Catch::WildcardPattern
 Win32ColourImpl	tests/catch.hpp	/^        Win32ColourImpl() : stdoutHandle( GetStdHandle(STD_OUTPUT_HANDLE) )$/;"	f	class:Catch::__anond33fe2000510::Win32ColourImpl
 Win32ColourImpl	tests/catch.hpp	/^    class Win32ColourImpl : public IColourImpl {$/;"	c	namespace:Catch::__anond33fe2000510
+Write	file.cpp	/^void File::Write(const char * buf, size_t len) {$/;"	f	class:File	typeref:typename:void
 XmlEncode	tests/catch.hpp	/^        XmlEncode( std::string const& str, ForWhat forWhat = ForTextNodes )$/;"	f	class:Catch::XmlEncode
 XmlEncode	tests/catch.hpp	/^    class XmlEncode {$/;"	c	namespace:Catch
 XmlReporter	tests/catch.hpp	/^        XmlReporter( ReporterConfig const& _config )$/;"	f	class:Catch::XmlReporter
