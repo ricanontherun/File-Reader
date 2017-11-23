@@ -9,18 +9,29 @@
 
 namespace File {
 
+enum class STATUS : unsigned {
+  OK = 1,
+  ERROR = 1 << 1,
+
+  // Specific errors
+  NOT_FOUND = 1 << 2,
+  LOCK_ERROR = 1 << 3,
+  INSUFFICIENT_ACCESS = 1 << 4
+};
+
+STATUS operator &(STATUS lhs, STATUS rhs);
+STATUS operator ^(STATUS lhs, STATUS rhs);
+STATUS operator ~(STATUS rhs);
+STATUS& operator |=(STATUS &lhs, STATUS rhs);
+STATUS& operator &=(STATUS &lhs, STATUS rhs);
+STATUS& operator ^=(STATUS &lhs, STATUS rhs);
+
 class Reader {
 public:
   enum class READ_STATUS {
     OK = 0,
     ERROR,
     END_OF_FILE
-  };
-
-  enum class STATUS {
-    OK = 0,
-    ERROR,
-    NOT_FOUND
   };
 
   // http://man7.org/linux/man-pages/man2/posix_fadvise.2.html
@@ -60,8 +71,13 @@ public:
   Reader& SetReadAdvice(ACCESS_ADVICE advice);
   Reader& SetOpenMode(int mode);
 
-  STATUS Open(const char * path);
-  STATUS Open(const std::string & path);
+  File::STATUS Open(const char * path);
+  File::STATUS Open(const std::string & path);
+
+  // Convenience methods for checking return status.
+  bool StatusOk(File::STATUS status);
+  bool StatusError(File::STATUS status);
+  bool StatusInsufficientAccess(File::STATUS status);
 private:
     int descriptor;
     ACCESS_ADVICE advice;
@@ -69,7 +85,7 @@ private:
     std::string buffer;
     struct stat file_stat;
 
-    STATUS initialize();
+    File::STATUS initialize();
 
     // Read bytes_to_read into buffer, returning *bytes_read as the actual byte count.
     READ_STATUS ReadIntoBuffer(char * buffer, size_t bytes_to_read, ssize_t * bytes_read);

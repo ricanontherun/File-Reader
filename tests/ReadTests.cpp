@@ -12,9 +12,9 @@ TEST_CASE("Reader::Read(size)", "[reader] [size]") {
         const char *file_path = "../data/file";
 
         Reader f;
-        Reader::STATUS open_status = f.Open(file_path);
+        File::STATUS open_status = f.Open(file_path);
         
-        REQUIRE(open_status == Reader::STATUS::OK);
+        REQUIRE(open_status == File::STATUS::OK);
 
         int read_size = 15;
 
@@ -32,8 +32,8 @@ TEST_CASE("Reader::Read", "[heck]") {
     SECTION("Test that it reads chunks of the most efficient size by default") {
         const char *file_path = "../data/file";
         Reader f;
-        Reader::STATUS open_status = f.Open(file_path);
-        REQUIRE(open_status == Reader::STATUS::OK);
+        File::STATUS open_status = f.Open(file_path);
+        REQUIRE(open_status == File::STATUS::OK);
 
         struct stat fs;
         stat(file_path, &fs);
@@ -51,8 +51,8 @@ TEST_CASE("Reader::Read", "[heck]") {
     SECTION("Test that it returns the appropriate status when the file has been exhausted") {
         const char *file_path = "../data/empty";
         Reader f;
-        Reader::STATUS open_status = f.Open(file_path);
-        REQUIRE(open_status == Reader::STATUS::OK);
+        File::STATUS open_status = f.Open(file_path);
+        REQUIRE(open_status == File::STATUS::OK);
 
         Reader::READ_STATUS status = f.Read(); // Let it read the optimum size.
         REQUIRE(status == Reader::READ_STATUS::END_OF_FILE);

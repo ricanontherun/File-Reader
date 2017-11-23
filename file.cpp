@@ -6,41 +6,103 @@
 
 namespace File {
 
+STATUS operator &(STATUS lhs, STATUS rhs)  
+{
+    return static_cast<STATUS> (
+        static_cast<std::underlying_type<STATUS>::type>(lhs) &
+        static_cast<std::underlying_type<STATUS>::type>(rhs)
+    );
+}
+
+STATUS operator |(STATUS lhs, STATUS rhs)  
+{
+    return static_cast<STATUS> (
+        static_cast<std::underlying_type<STATUS>::type>(lhs) |
+        static_cast<std::underlying_type<STATUS>::type>(rhs)
+    );
+}
+
+STATUS operator ^(STATUS lhs, STATUS rhs)  
+{
+    return static_cast<STATUS> (
+        static_cast<std::underlying_type<STATUS>::type>(lhs) ^
+        static_cast<std::underlying_type<STATUS>::type>(rhs)
+    );
+}
+
+STATUS operator ~(STATUS rhs)  
+{
+    return static_cast<STATUS> (
+        ~static_cast<std::underlying_type<STATUS>::type>(rhs)
+    );
+}
+
+STATUS& operator |=(STATUS &lhs, STATUS rhs)  
+{
+    lhs = static_cast<STATUS> (
+        static_cast<std::underlying_type<STATUS>::type>(lhs) |
+        static_cast<std::underlying_type<STATUS>::type>(rhs)           
+    );
+
+    return lhs;
+}
+
+STATUS& operator &=(STATUS &lhs, STATUS rhs)  
+{
+    lhs = static_cast<STATUS> (
+        static_cast<std::underlying_type<STATUS>::type>(lhs) &
+        static_cast<std::underlying_type<STATUS>::type>(rhs)           
+    );
+
+    return lhs;
+}
+
+STATUS& operator ^=(STATUS &lhs, STATUS rhs)  
+{
+    lhs = static_cast<STATUS> (
+        static_cast<std::underlying_type<STATUS>::type>(lhs) ^
+        static_cast<std::underlying_type<STATUS>::type>(rhs)           
+    );
+
+    return lhs;
+}
+
 Reader::Reader() :
     descriptor(0),
     buffer(""),
     advice(ACCESS_ADVICE::SEQUENTIAL)
 {}
 
-Reader::STATUS Reader::Open(const char * path) {
+File::STATUS Reader::Open(const char * path) {
     if (access(path, F_OK) == -1) {
-        return Reader::STATUS::NOT_FOUND;
+        return File::STATUS::ERROR | File::STATUS::INSUFFICIENT_ACCESS;
     }
 
     descriptor = open(path, O_RDONLY);
 
     if ( descriptor == -1 ) {
-        return Reader::STATUS::ERROR;
+        // What kinds of error causes can we extract from -1? errno?
+        return File::STATUS::ERROR;
     }
 
     return initialize();
 }
 
-Reader::STATUS Reader::Open(const std::string & path) {
+File::STATUS Reader::Open(const std::string & path) {
     return Open(path.c_str());
 }
 
-Reader::STATUS Reader::initialize() {
+File::STATUS Reader::initialize() {
     int status = fstat(descriptor, &(file_stat));
 
     if ( status == -1 ) {
-        return Reader::STATUS::ERROR;
+        return File::STATUS::ERROR;
     }
 
     // Advise the kernel of how the file will be read.
     posix_fadvise(descriptor, 0, 0, static_cast<int>(advice));
 
-    return Reader::STATUS::OK;
+    return File::STATUS::OK;
 }
 
 Reader::~Reader() {
@@ -148,4 +210,18 @@ Reader::READ_STATUS Reader::ReadIntoBuffer(char * buffer, size_t bytes_to_read, 
     return ret;
 }
 
-} // End Reader
+// TODO: This can get verbose...is there a way to clean this up?
+
+bool Reader::StatusOk(File::STATUS status) {
+    return (status & File::STATUS::OK) == File::STATUS::OK;
+}
+
+bool Reader::StatusError(File::STATUS status) {
+    return (status & File::STATUS::ERROR) == File::STATUS::ERROR;
+}
+
+bool Reader::StatusInsufficientAccess(File::STATUS status) {
+    return (status & File::STATUS::INSUFFICIENT_ACCESS) == File::STATUS::INSUFFICIENT_ACCESS;
+}
+
+} // End File
