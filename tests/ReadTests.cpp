@@ -16,13 +16,13 @@ TEST_CASE("File::Read") {
         stat(file_path, &fs);
         blksize_t optimum_blocksize = fs.st_blksize;
 
-        // Verify the read success.
+        // Read a single chunk, letting it default to the optimum block size.
         File::READ_STATUS status = f.Read();
+
         REQUIRE(status == File::READ_STATUS::OK);
 
-        // Verify the length of the data.
-        std::string data = f.Get();
-        REQUIRE(data.length() == optimum_blocksize);
+        // Verify the length of the buffer is equal to the optimum block size.
+        REQUIRE(f.Get().length() == optimum_blocksize);
     }
 
     SECTION("Test that it can read chunks sizes of a specificed type.") {
@@ -37,8 +37,7 @@ TEST_CASE("File::Read") {
         File::READ_STATUS status = f.Read(read_size);
         REQUIRE(status == File::READ_STATUS::OK);
 
-        std::string data = f.Get();
-        REQUIRE(data.length() == read_size);
+        REQUIRE(f.Get().length() == read_size);
     }
 
     SECTION("Test that it returns the appropriate status when the file has been exhausted") {
