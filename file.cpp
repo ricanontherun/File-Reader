@@ -4,55 +4,57 @@
 #include <sys/file.h>
 #include <iostream>
 
-File::File() :
+namespace File {
+
+Reader::Reader() :
     descriptor(0),
     buffer(""),
     advice(ACCESS_ADVICE::SEQUENTIAL),
     mode(O_RDONLY)
 {}
 
-File::STATUS File::Open(const char * path) {
+Reader::STATUS Reader::Open(const char * path) {
     if (access(path, F_OK) == -1) {
-        return File::STATUS::NOT_FOUND;
+        return Reader::STATUS::NOT_FOUND;
     }
 
     descriptor = open(path, mode);
 
     if ( descriptor == -1 ) {
-        return File::STATUS::ERROR;
+        return Reader::STATUS::ERROR;
     }
 
     return initialize();
 }
 
-File::STATUS File::Open(const std::string & path) {
+Reader::STATUS Reader::Open(const std::string & path) {
     return Open(path.c_str());
 }
 
-File::STATUS File::initialize() {
+Reader::STATUS Reader::initialize() {
     int status = fstat(descriptor, &(file_stat));
 
     if ( status == -1 ) {
-        return File::STATUS::ERROR;
+        return Reader::STATUS::ERROR;
     }
 
     // Advise the kernel of how the file will be read.
     posix_fadvise(descriptor, 0, 0, static_cast<int>(advice));
 
-    return File::STATUS::OK;
+    return Reader::STATUS::OK;
 }
 
-File::~File() {
+Reader::~Reader() {
   if (Ok()) {
     close(descriptor);
   }
 }
 
-bool File::Ok() const {
+bool Reader::Ok() const {
   return descriptor > 0;
 }
 
-File::READ_STATUS File::Read(ssize_t bytes) {
+Reader::READ_STATUS Reader::Read(ssize_t bytes) {
     bytes = bytes != 0 ? bytes : file_stat.st_blksize;
     char buf[bytes];
     ssize_t bytes_read = 0;
@@ -66,7 +68,7 @@ File::READ_STATUS File::Read(ssize_t bytes) {
     return status;
 }
 
-File::READ_STATUS File::ReadAll() {
+Reader::READ_STATUS Reader::ReadAll() {
     char buf[file_stat.st_size];
     char *buf_ptr = buf;
     ssize_t bytes_read = 0;
@@ -80,23 +82,23 @@ File::READ_STATUS File::ReadAll() {
     return status;
 }
 
-const std::string &File::Get() const {
+const std::string &Reader::Get() const {
   return buffer;
 }
 
-File& File::SetReadAdvice(ACCESS_ADVICE advice) {
+Reader& Reader::SetReadAdvice(ACCESS_ADVICE advice) {
     advice = advice;
     
     return *this;
 }
 
-File& File::SetOpenMode(int mode) {
+Reader& Reader::SetOpenMode(int mode) {
     mode = mode;
 
     return *this;
 }
 
-File::READ_STATUS File::ReadIntoBuffer(const char * buffer, size_t bytes_to_read, ssize_t * bytes_read) {
+Reader::READ_STATUS Reader::ReadIntoBuffer(const char * buffer, size_t bytes_to_read, ssize_t * bytes_read) {
     *bytes_read = 0;
 
     if ( flock(descriptor, LOCK_EX) == -1 ) {
@@ -136,3 +138,5 @@ File::READ_STATUS File::ReadIntoBuffer(const char * buffer, size_t bytes_to_read
 
     return num_bytes_read == 0 ? READ_STATUS::END_OF_FILE : READ_STATUS::OK;
 }
+
+} // End Reader

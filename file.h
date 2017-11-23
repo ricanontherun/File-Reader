@@ -1,5 +1,5 @@
-#ifndef  RICANONTHERUN_FILE_H
-#define  RICANONTHERUN_FILE_H
+#ifndef  FILE_READER_H
+#define  FILE_READER_H
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -7,7 +7,9 @@
 #include <unistd.h>
 #include <string>
 
-class File {
+namespace File {
+
+class Reader {
 public:
   enum class READ_STATUS {
     OK = 0,
@@ -31,8 +33,8 @@ public:
     DONTNEED = POSIX_FADV_DONTNEED
   };
 
-  File();
-  ~File();
+  Reader();
+  ~Reader();
 
   /**
    * Was the file opened without error?
@@ -52,8 +54,8 @@ public:
    */
   const std::string &Get() const;
 
-  File& SetReadAdvice(ACCESS_ADVICE advice);
-  File& SetOpenMode(int mode);
+  Reader& SetReadAdvice(ACCESS_ADVICE advice);
+  Reader& SetOpenMode(int mode);
 
   STATUS Open(const char * path);
   STATUS Open(const std::string & path);
@@ -69,4 +71,6 @@ private:
     READ_STATUS ReadIntoBuffer(const char * buffer, size_t bytes_to_read, ssize_t * bytes_read);
 };
 
-#endif // RICANONTHERUN_FILE_H
+} // End File
+
+#endif // FILE_READER_H
