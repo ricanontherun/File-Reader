@@ -42,7 +42,7 @@ public:
   bool Ok() const;
 
   /**
-   * Read bytes from the file. When the bytes argument is omitted, the optimal block size is used from a call to fstat.
+   * Read bytes from the file. When the bytes argument is omitted, the optimal block size will be used.
    */
   READ_STATUS Read(ssize_t bytes = 0);
 
@@ -54,6 +54,9 @@ public:
    */
   const std::string &Get() const;
 
+  /**
+   * Advise the kernel how you intend to read from this file. See ACCESS_ADVICE.
+   */
   Reader& SetReadAdvice(ACCESS_ADVICE advice);
   Reader& SetOpenMode(int mode);
 
@@ -68,6 +71,7 @@ private:
 
     STATUS initialize();
 
+    // Read bytes_to_read into buffer, returning *bytes_read as the actual byte count.
     READ_STATUS ReadIntoBuffer(char * buffer, size_t bytes_to_read, ssize_t * bytes_read);
 };
 

@@ -5,10 +5,31 @@
 #include <fstream>
 #include "../file.h"
 
-TEST_CASE("Reader::Read") {
+TEST_CASE("Reader::Read(size)", "[reader] [size]") {
     using File::Reader;
 
-    SECTION("Test that it reads chunks of the most efficient size by default", "[yarp]") {
+    SECTION("Test that it can read chunks sizes of a specificed type.") {
+        const char *file_path = "../data/file";
+
+        Reader f;
+        Reader::STATUS open_status = f.Open(file_path);
+        
+        REQUIRE(open_status == Reader::STATUS::OK);
+
+        int read_size = 15;
+
+        // Verify the read success.
+        Reader::READ_STATUS status = f.Read(read_size);
+        
+        REQUIRE(status == Reader::READ_STATUS::OK);
+        REQUIRE(f.Get().length() == read_size);
+    }
+}
+
+TEST_CASE("Reader::Read", "[heck]") {
+    using File::Reader;
+
+    SECTION("Test that it reads chunks of the most efficient size by default") {
         const char *file_path = "../data/file";
         Reader f;
         Reader::STATUS open_status = f.Open(file_path);
@@ -25,21 +46,6 @@ TEST_CASE("Reader::Read") {
 
         // Verify the length of the buffer is equal to the optimum block size.
         REQUIRE(f.Get().length() == optimum_blocksize);
-    }
-
-    SECTION("Test that it can read chunks sizes of a specificed type.") {
-        const char *file_path = "../data/file";
-        Reader f;
-        Reader::STATUS open_status = f.Open(file_path);
-        REQUIRE(open_status == Reader::STATUS::OK);
-
-        int read_size = 15;
-
-        // Verify the read success.
-        Reader::READ_STATUS status = f.Read(read_size);
-        REQUIRE(status == Reader::READ_STATUS::OK);
-
-        REQUIRE(f.Get().length() == read_size);
     }
 
     SECTION("Test that it returns the appropriate status when the file has been exhausted") {

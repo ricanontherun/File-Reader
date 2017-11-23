@@ -9,8 +9,7 @@ namespace File {
 Reader::Reader() :
     descriptor(0),
     buffer(""),
-    advice(ACCESS_ADVICE::SEQUENTIAL),
-    mode(O_RDONLY)
+    advice(ACCESS_ADVICE::SEQUENTIAL)
 {}
 
 Reader::STATUS Reader::Open(const char * path) {
@@ -18,7 +17,7 @@ Reader::STATUS Reader::Open(const char * path) {
         return Reader::STATUS::NOT_FOUND;
     }
 
-    descriptor = open(path, mode);
+    descriptor = open(path, O_RDONLY);
 
     if ( descriptor == -1 ) {
         return Reader::STATUS::ERROR;
@@ -92,13 +91,13 @@ const std::string &Reader::Get() const {
 }
 
 Reader& Reader::SetReadAdvice(ACCESS_ADVICE advice) {
-    advice = advice;
+    this->advice = advice;
     
     return *this;
 }
 
 Reader& Reader::SetOpenMode(int mode) {
-    mode = mode;
+    this->mode = mode;
 
     return *this;
 }
@@ -106,7 +105,7 @@ Reader& Reader::SetOpenMode(int mode) {
 Reader::READ_STATUS Reader::ReadIntoBuffer(char * buffer, size_t bytes_to_read, ssize_t * bytes_read) {
     *bytes_read = 0;
 
-    if ( flock(descriptor, LOCK_EX) == -1 ) {
+    if ( flock(descriptor, LOCK_EX | LOCK_NB) == -1 ) {
         return READ_STATUS::ERROR;
     }
 
@@ -131,15 +130,22 @@ Reader::READ_STATUS Reader::ReadIntoBuffer(char * buffer, size_t bytes_to_read, 
         bytes_to_read -= num_bytes_read;
     } while (bytes_to_read > 0);
 
-    if ( flock(descriptor, LOCK_UN) == -1 ) {
+    if ( flock(descriptor, LOCK_UN | LOCK_NB) == -1 ) {
         return READ_STATUS::ERROR;
     }
 
-    if ( num_bytes_read == -1 ) {
-        return READ_STATUS::ERROR;
+    READ_STATUS ret = READ_STATUS::OK;
+
+    switch (num_bytes_read) {
+        case -1:
+            ret = READ_STATUS::ERROR;
+            break;
+        case 0:
+            ret = READ_STATUS::END_OF_FILE;
+            break;
     }
 
-    return num_bytes_read == 0 ? READ_STATUS::END_OF_FILE : READ_STATUS::OK;
+    return ret;
 }
 
 } // End Reader
