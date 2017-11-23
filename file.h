@@ -68,7 +68,7 @@ private:
 
     STATUS initialize();
 
-    READ_STATUS ReadIntoBuffer(const char * buffer, size_t bytes_to_read, ssize_t * bytes_read);
+    READ_STATUS ReadIntoBuffer(char * buffer, size_t bytes_to_read, ssize_t * bytes_read);
 };
 
 } // End File

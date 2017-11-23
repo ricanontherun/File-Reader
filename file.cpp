@@ -46,20 +46,24 @@ Reader::STATUS Reader::initialize() {
 
 Reader::~Reader() {
   if (Ok()) {
-    close(descriptor);
+    if (close(descriptor) == -1) {
+        std::cerr << "Failed to close file\n";
+    }
   }
 }
 
 bool Reader::Ok() const {
-  return descriptor > 0;
+    return descriptor > 0;
 }
 
 Reader::READ_STATUS Reader::Read(ssize_t bytes) {
     bytes = bytes != 0 ? bytes : file_stat.st_blksize;
-    char buf[bytes];
-    ssize_t bytes_read = 0;
 
+    char buf[bytes + 1];
+
+    ssize_t bytes_read = 0;
     READ_STATUS status = ReadIntoBuffer(buf, bytes, &bytes_read);
+    buf[bytes_read] = '\0';
 
     if ( status != READ_STATUS::ERROR ) {
         buffer = std::string(buf);
@@ -69,11 +73,12 @@ Reader::READ_STATUS Reader::Read(ssize_t bytes) {
 }
 
 Reader::READ_STATUS Reader::ReadAll() {
-    char buf[file_stat.st_size];
+    char buf[file_stat.st_size + 1];
     char *buf_ptr = buf;
-    ssize_t bytes_read = 0;
 
+    ssize_t bytes_read = 0;
     READ_STATUS status = ReadIntoBuffer(buf, file_stat.st_size, &bytes_read);
+    buf[bytes_read] = '\0';
 
     if (status != READ_STATUS::ERROR)  { // EOF
         buffer = std::string(buf);
@@ -98,14 +103,12 @@ Reader& Reader::SetOpenMode(int mode) {
     return *this;
 }
 
-Reader::READ_STATUS Reader::ReadIntoBuffer(const char * buffer, size_t bytes_to_read, ssize_t * bytes_read) {
+Reader::READ_STATUS Reader::ReadIntoBuffer(char * buffer, size_t bytes_to_read, ssize_t * bytes_read) {
     *bytes_read = 0;
 
     if ( flock(descriptor, LOCK_EX) == -1 ) {
         return READ_STATUS::ERROR;
     }
-
-    lseek(descriptor, 0, SEEK_SET);
 
     ssize_t num_bytes_read = 0;
 
