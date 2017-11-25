@@ -1,8 +1,10 @@
 #include "file.h"
+
 #include <string.h>
 #include <errno.h>
 #include <sys/file.h>
 #include <iostream>
+#include <memory>
 
 namespace File {
 
@@ -72,7 +74,8 @@ Reader::~Reader() {
 }
 
 Reader::READ_STATUS Reader::Read(std::string & buffer) {
-    char buf[read_size + 1];
+    char *buf = new (std::nothrow) char[read_size + 1];
+    auto mananged_buffer = std::unique_ptr<char[]>(buf);
 
     ssize_t bytes_read = 0;
     READ_STATUS status = Read(buf, read_size, &bytes_read);
@@ -118,6 +121,7 @@ Reader::READ_STATUS Reader::Read(char * buffer, size_t bytes_to_read, ssize_t * 
     ssize_t num_bytes_read = 0;
 
     do {
+        // as long as the optimum block size is less than what's remaining, use the optimum block size.
         ssize_t read_size = file_stat.st_blksize < bytes_to_read ? file_stat.st_blksize : bytes_to_read;
 
         num_bytes_read = read(descriptor, (void *) buffer, read_size);
