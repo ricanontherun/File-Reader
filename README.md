@@ -1,49 +1,83 @@
-# File Abstraction [![Build Status](https://travis-ci.org/ricanontherun/file.svg?branch=master)](https://travis-ci.org/ricanontherun/file)
+# File Reader [![Build Status](https://travis-ci.org/ricanontherun/file.svg?branch=master)](https://travis-ci.org/ricanontherun/file)
 
-A very thin wrapper over Linux IO system calls, capable of fast reads. 
+A file reader with a focus on fast sequential reads.
 
+
+### Opening files
 ```cpp
-// Create a file object, defaults to normal advice.
-File f;
-f.Open(path)
+File reader;
 
-// Create a file object, with sequential read advice
-File f;
+const char * c_style_string = "file.txt";
+File::STATUS open_status = reader.Open(c_style_string);
 
-File::STATUS status = f.SetReadAdvice(File::ACCESS_ADVICE::SEQUENTIAL).Open(path);
+// -- or
 
-if (status == File::Status::OK ) { // You can also do f.Ok()
-    // Read bytes according to the file's optimal block size.
-    File::READ_STATUS status = f.Read();
-    
-     // Read 1000 bytes into f's internal buffer.
-    File::READ_STATUS status = f.Read(1000);
-    
-    std:string data = f.Get(); // Get the current contents of f's internal buffer.
+std::string cpp_string = "file.txt";
+File::STATUS open_status = reader.Open(cpp_string);
+
+// Error handling.
+if (File::StatusOk(open_status)) {
+    // Use reader
+} else if (File::StatusError(open_status)) {
+
+    // Extract some more information from the return status, if you wish.
+    if (File::StatusAccessError(open_status)) {
+        // You don't have access to this file.
+    } else if (File::StatusTypeError(open_status)) {
+        // A non-regular file was provided.
+    }
 }
 ```
 
-## A more practical usage
+### Options
 ```cpp
-File f;
+// Assuming an opened file reader.
 
-File::STATUS status = f.Open(File::ACCESS_ADVICE::SEQUENTIAL);
+// By default, the reader will use the optimum IO blocksize for reads, as determined
+// by a call to stat().
 
-if ( !f.Ok() ) {
-    // handle error
+// Set the read size to 1000 bytes.
+reader.SetReadSize(1000);
+```
+
+### Read a chunk
+```cpp
+std::string buffer;
+
+// read a chunk from the file.
+File::Reader::READ_STATUS read_status = reader.Read(buffer);
+
+// Error handling
+if (reader.StatusError(read_status)) {
+    // Handle the error.
 } else {
-    File::READ_STATUS status;
-    
-    while ( (status = f.Read(1024)) == File::READ_STATUS::OK ) {
-        std::string data = f.Get();
-        
-        // Do something with data
+    if (reader.StatusEndOfFile(status)) {
+        // We've hit EOF
     }
-    
-    if ( status == File::READ_STATUS::END_OF_FILE ) {
-        // End of file
-    } else if ( status == File::READ_STATUS::ERROR ) {
-        // An error occured
-    }
+    // Use buffer...
+}
+```
+
+### Read the entire file into memory
+```cpp
+std::string buffer;
+File::Reader::READ_STATUS read_status = reader.ReadAll(buffer);
+```
+
+### Read the entire file in chunks
+```cpp
+
+// Optionally set the read/chunk size
+reader.SetReadSize(1000);
+
+// Will return on error or eof.
+Reader::READ_STATUS r_status = reader.Read([](std::string & chunk) {
+    // Do something with chunk
+});
+
+if (reader.StatusEndOfFile(status)) {
+    // Expected.
+} else if (reader.StatusError(status)) {
+    // ruh roh
 }
 ```

@@ -1,94 +1,76 @@
-#ifndef  FILE_READER_H
-#define  FILE_READER_H
+#ifndef FILE_READER_H
+#define FILE_READER_H
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string>
+#include <functional>
 
-namespace File {
+#include "enums.h"
 
-enum class STATUS : unsigned {
+namespace File
+{
+
+enum class STATUS : unsigned
+{
   OK = 1,
   ERROR = 1 << 1,
 
   // Specific errors
-  NOT_FOUND = 1 << 2,
-  LOCK_ERROR = 1 << 3,
-  INSUFFICIENT_ACCESS = 1 << 4
+  COULD_NOT_LOCK = 1 << 2,
+  INSUFFICIENT_ACCESS = 1 << 3,
+  INVALID_TYPE = 1 << 4
 };
 
-STATUS operator &(STATUS lhs, STATUS rhs);
-STATUS operator ^(STATUS lhs, STATUS rhs);
-STATUS operator ~(STATUS rhs);
-STATUS& operator |=(STATUS &lhs, STATUS rhs);
-STATUS& operator &=(STATUS &lhs, STATUS rhs);
-STATUS& operator ^=(STATUS &lhs, STATUS rhs);
+bool StatusOk(STATUS status);
+bool StatusError(STATUS status);
+bool StatusAccessError(STATUS status);
+bool StatusTypeError(STATUS status);
 
-class Reader {
+class Reader
+{
 public:
-  enum class READ_STATUS {
-    OK = 0,
-    ERROR,
-    END_OF_FILE
-  };
+  enum class READ_STATUS : unsigned
+  {
+    OK = 1,
+    ERROR = 1 << 2,
 
-  // http://man7.org/linux/man-pages/man2/posix_fadvise.2.html
-  enum class ACCESS_ADVICE {
-    NORMAL = POSIX_FADV_NORMAL,
-    SEQUENTIAL = POSIX_FADV_SEQUENTIAL,
-    RANDOM = POSIX_FADV_RANDOM,
-    NOREUSE = POSIX_FADV_NOREUSE,
-    WILLNEED = POSIX_FADV_WILLNEED,
-    DONTNEED = POSIX_FADV_DONTNEED
+    // Specific errors.
+    END_OF_FILE = 1 << 3,
+    COULD_NOT_LOCK = 1 << 4
   };
 
   Reader();
   ~Reader();
 
-  /**
-   * Was the file opened without error?
-   */
-  bool Ok() const;
+  // Read bytes into a buffer.
+  READ_STATUS Read(std::string &buffer);
 
-  /**
-   * Read bytes from the file. When the bytes argument is omitted, the optimal block size will be used.
-   */
-  READ_STATUS Read(ssize_t bytes = 0);
+  // Read chunks from the file, using a callback.
+  READ_STATUS Read(std::function<void(std::string &)> callback);
 
   // Read the entire file into the internal buffer, using the optimal block size.
-  READ_STATUS ReadAll();
+  READ_STATUS ReadAll(std::string &buffer);
 
-  /**
-   * Return the bytes that were read in the previous Read() operation.
-   */
-  const std::string &Get() const;
+  Reader &SetReadSize(size_t size);
 
-  /**
-   * Advise the kernel how you intend to read from this file. See ACCESS_ADVICE.
-   */
-  Reader& SetReadAdvice(ACCESS_ADVICE advice);
-  Reader& SetOpenMode(int mode);
+  File::STATUS Open(const char *path);
+  File::STATUS Open(const std::string &path);
 
-  File::STATUS Open(const char * path);
-  File::STATUS Open(const std::string & path);
-
-  // Convenience methods for checking return status.
-  bool StatusOk(File::STATUS status);
-  bool StatusError(File::STATUS status);
-  bool StatusInsufficientAccess(File::STATUS status);
+  bool StatusOk(READ_STATUS status);
+  bool StatusEndOfFile(READ_STATUS status);
+  bool StatusError(READ_STATUS status);
 private:
-    int descriptor;
-    ACCESS_ADVICE advice;
-    int mode;
-    std::string buffer;
-    struct stat file_stat;
+  int descriptor;
+  struct stat file_stat;
+  size_t read_size;
 
-    File::STATUS initialize();
+  File::STATUS initialize();
 
-    // Read bytes_to_read into buffer, returning *bytes_read as the actual byte count.
-    READ_STATUS ReadIntoBuffer(char * buffer, size_t bytes_to_read, ssize_t * bytes_read);
+  // Read bytes_to_read into buffer, returning *bytes_read as the actual byte count.
+  READ_STATUS Read(char *buffer, size_t bytes_to_read, ssize_t *bytes_read);
 };
 
 } // End File

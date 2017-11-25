@@ -4,6 +4,7 @@
         "cstddef": "cpp",
         "cstdio": "cpp",
         "cstring": "cpp",
-        "ctime": "cpp"
+        "ctime": "cpp",
+        "functional": "cpp"
     }
 }
