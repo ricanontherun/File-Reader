@@ -1,6 +1,6 @@
 # File Reader [![Build Status](https://travis-ci.org/ricanontherun/file.svg?branch=master)](https://travis-ci.org/ricanontherun/file)
 
-A file reader with a focus on fast sequential reads.
+A file reader with a focus on fast sequential reads. Requires at least C++11 support.
 
 
 ### Opening files
