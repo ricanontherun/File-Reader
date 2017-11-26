@@ -8,7 +8,7 @@
 #include <string>
 #include <functional>
 
-#include "enums.h"
+#include "enums.hpp"
 
 namespace File
 {
