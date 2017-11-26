@@ -13,7 +13,7 @@
 namespace File
 {
 
-enum class STATUS : unsigned
+enum class STATUS : char
 {
   OK = 1,
   ERROR = 1 << 1,
@@ -32,7 +32,7 @@ bool StatusTypeError(STATUS status);
 class Reader
 {
 public:
-  enum class READ_STATUS : unsigned
+  enum class READ_STATUS : char
   {
     OK = 1,
     ERROR = 1 << 2,
