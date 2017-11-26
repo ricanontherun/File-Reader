@@ -5,7 +5,7 @@
 #include <fstream>
 #include <ctime>
 
-#include "../file.h"
+#include "../file.hpp"
 
 TEST_CASE("Reader::Read(size)", "[reader] [size]") {
     using File::Reader;
