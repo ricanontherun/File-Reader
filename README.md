@@ -1,6 +1,6 @@
 # File Reader [![Build Status](https://travis-ci.org/ricanontherun/File-Reader.svg?branch=master)](https://travis-ci.org/ricanontherun/File-Reader)
 
-A file reader with a focus on fast sequential reads. Requires at least C++11 support.
+A file reader with a focus on fast sequential reads. Requires at least C++11 support and Linux Kernels with support for posix_fadvise.
 
 
 ### Opening files
